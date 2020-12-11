@@ -15,7 +15,7 @@ Details anzusehen.
 ## The Open Movie Database API
  - https://www.omdbapi.com
  - Als API Key kann `###` genutzt werden.
- - Beispiel Suche: `https:"//www.omdbapi.com/?s=batman&apikey=###`
+ - Beispiel Suche: `https://www.omdbapi.com/?s=batman&apikey=###`
 
 ## Abgabe
  - Bitte stelle uns die fertige App über ein öffentliches Git Repository zur verfügung.

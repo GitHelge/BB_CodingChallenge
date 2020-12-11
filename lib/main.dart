@@ -1,3 +1,6 @@
+import 'package:BB_CodingChallenge/api/ApiClient.dart';
+import 'package:BB_CodingChallenge/model/SearchResult.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -9,15 +12,14 @@ Future main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final apiKey = DotEnv().env['OMDB_API_KEY'];
-    print('OMDB_API_KEY=' + apiKey.toString());
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Color(0xff332f2b),
+        accentColor: Color(0xFFC6562C),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Online Movie Database'),
     );
   }
 }
@@ -32,12 +34,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  final apiClient = ApiClient.initialize();
+  Future<SearchResult> searchResult;
+  @override
+  void initState() {
+    super.initState();
+    searchResult = apiClient.fetchSearchResult(
+      searchString: "batman"
+    );
   }
 
   @override
@@ -46,25 +51,37 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+      body: FutureBuilder(
+        future: searchResult,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data.search.length, 
+              itemBuilder: (context, index) { 
+                final item = snapshot.data.search[index];
+                return ListTile(
+                  title: Text(item.title),
+                  subtitle: Text(item.year),
+                  leading: CachedNetworkImage(
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    imageUrl: item.posterUri,
+                  ),
+                );
+              },
+            );
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          // By default, show a loading spinner.
+          return Center(
+            child: SizedBox(
+              child: CircularProgressIndicator(),
+              height: 24,
+              width: 24,
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+          );
+        }),
     );
   }
 }
