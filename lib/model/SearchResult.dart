@@ -9,10 +9,11 @@ class SearchResult {
 
   factory SearchResult.fromJson(Map<String, dynamic> parsedJson) {
     return SearchResult(
-        search: parsedJson['Search']
-            .map<Movie>((item) => Movie.fromJson(item))
-            .toList(),
-        totalResults: parsedJson['totalResults'],
-        response: parsedJson['Response']);
+      search: parsedJson['Search']
+          .map<Movie>((item) => Movie.fromJson(item))
+          .toList(),
+      totalResults: parsedJson['totalResults'],
+      response: parsedJson['Response'],
+    );
   }
 }

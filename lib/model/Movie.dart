@@ -5,7 +5,7 @@ class Movie {
   final String type;
   final String posterUri;
 
-  Movie({ this.title, this.year, this.imdbID, this.type, this.posterUri });
+  Movie({this.title, this.year, this.imdbID, this.type, this.posterUri});
 
   factory Movie.fromJson(Map<String, dynamic> parsedJson) {
     return Movie(
@@ -13,7 +13,7 @@ class Movie {
       year: parsedJson['Year'],
       imdbID: parsedJson['imdbID'],
       type: parsedJson['Type'],
-      posterUri: parsedJson['Poster']
+      posterUri: parsedJson['Poster'],
     );
   }
 }

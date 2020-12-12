@@ -17,7 +17,8 @@ class ApiClient {
         return MovieDetails.fromJson(response.data);
       } else {
         throw Exception(
-            'Loading movie details failed with status code ${response.statusCode}');
+          'Loading movie details failed with status code ${response.statusCode}',
+        );
       }
     } catch (e) {
       print(e);
@@ -35,7 +36,8 @@ class ApiClient {
         return SearchResult.fromJson(response.data).search;
       } else {
         throw Exception(
-            'Loading movie list data failed with status code ${response.statusCode}');
+          'Loading movie list data failed with status code ${response.statusCode}',
+        );
       }
     } catch (e) {
       print(e);
@@ -48,6 +50,6 @@ class ApiClient {
   }
 
   ApiClient._internal() {
-    this._apiKey = DotEnv().env['OMDB_API_KEY'];
+    _apiKey = DotEnv().env['OMDB_API_KEY'];
   }
 }
