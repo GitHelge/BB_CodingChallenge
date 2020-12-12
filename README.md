@@ -1,3 +1,10 @@
+# Setup
+  - Create `.env` file containing the current apiKey as defined in `.env.example`.
+
+# Todos
+ - Testing Flutter Widgets + Mocking API calls.
+ - Better handling of non-existent poster uris. (Produces Info Logs)
+
 # Coding Challenge
 
 ## Aufgabe
