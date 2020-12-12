@@ -1,4 +1,4 @@
-# Berenberg Coding Challenge
+# Coding Challenge
 
 ## Aufgabe
  - Entwickle eine App auf basis der `The Open Movie Database` API.
