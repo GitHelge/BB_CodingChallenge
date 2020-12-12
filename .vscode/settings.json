@@ -8,5 +8,5 @@
     "plaintext"
   ],
   "editor.formatOnSave": true,
-  "dart.closingLabels": false
+  "dart.closingLabels": false,
 }

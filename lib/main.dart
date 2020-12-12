@@ -1,5 +1,6 @@
 import 'package:BB_CodingChallenge/api/ApiClient.dart';
 import 'package:BB_CodingChallenge/model/Movie.dart';
+import 'package:BB_CodingChallenge/model/MovieDetails.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -25,15 +26,37 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class DetailScreen extends StatelessWidget {
-  final Movie movie;
+class DetailScreen extends StatefulWidget {
   DetailScreen({Key key, this.movie}) : super(key: key);
+
+  final Movie movie;
+
+  @override
+  _DetailsScreenState createState() => _DetailsScreenState();
+}
+
+class _DetailsScreenState extends State<DetailScreen> {
+  final _apiClient = ApiClient.initialize();
+  MovieDetails _movieDetails;
+
+  void _loadMovieDetails(String imdbID) async {
+    final movieDetails = await _apiClient.fetchMovieDetails(imdbID);
+    setState(() {
+      _movieDetails = movieDetails;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMovieDetails(widget.movie.imdbID);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(movie.title),
+          title: Text(widget.movie.title),
         ),
         body: Container(
           decoration:
@@ -46,7 +69,7 @@ class DetailScreen extends StatelessWidget {
                 SizedBox(
                     height: 300,
                     child: Hero(
-                      tag: "poster${movie.imdbID}",
+                      tag: "poster${widget.movie.imdbID}",
                       child: CachedNetworkImage(
                         imageBuilder: (context, imageProvider) => Container(
                           decoration: BoxDecoration(
@@ -62,7 +85,7 @@ class DetailScreen extends StatelessWidget {
                         errorWidget: (context, url, error) => Icon(Icons.error),
                         placeholder: (context, url) =>
                             CircularProgressIndicator(),
-                        imageUrl: movie.posterUri,
+                        imageUrl: widget.movie.posterUri,
                       ),
                     )),
                 Expanded(
@@ -73,7 +96,7 @@ class DetailScreen extends StatelessWidget {
                             bottomLeft: Radius.circular(8),
                             bottomRight: Radius.circular(8)),
                       ),
-                      child: Text(movie.type)),
+                      child: Text(_movieDetails.movie.type)),
                 ),
               ],
             ),
@@ -165,22 +188,22 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var _scrollController = ScrollController();
 
-  final apiClient = ApiClient.initialize();
-  bool isLoading = false;
-  int page = 1;
-  List<Movie> movieList = [];
+  final _apiClient = ApiClient.initialize();
+  bool _loading = false;
+  int _page = 1;
+  List<Movie> _movieList = [];
 
   void loadMovies({bool loadNextPage = false}) async {
-    print("$loadNextPage, $page");
+    print("$loadNextPage, $_page");
     setState(() {
-      isLoading = true;
-      if (loadNextPage) page++;
+      _loading = true;
+      if (loadNextPage) _page++;
     });
-    final fetchedMovieList =
-        await apiClient.fetchMovieList(searchString: "batman", page: page);
+    final movieList =
+        await _apiClient.fetchMovieList(searchString: "batman", page: _page);
     setState(() {
-      movieList = [...movieList, ...fetchedMovieList];
-      isLoading = false;
+      _movieList = [..._movieList, ...movieList];
+      _loading = false;
     });
   }
 
@@ -190,11 +213,11 @@ class _MyHomePageState extends State<MyHomePage> {
     loadMovies();
 
     _scrollController.addListener(() {
-      double maxScroll = _scrollController.position.maxScrollExtent;
-      double currentScroll = _scrollController.position.pixels;
-      double delta = 200.0; // or something else..
+      final double maxScroll = _scrollController.position.maxScrollExtent;
+      final double currentScroll = _scrollController.position.pixels;
+      final double delta = 200.0; // or something else..
       if (maxScroll - currentScroll <= delta) {
-        if (isLoading) return;
+        if (_loading) return;
         loadMovies(loadNextPage: true);
       }
     });
@@ -217,9 +240,9 @@ class _MyHomePageState extends State<MyHomePage> {
               BoxDecoration(color: Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE)),
           child: ListView.builder(
               controller: _scrollController,
-              itemCount: movieList.length,
+              itemCount: _movieList.length,
               itemBuilder: (context, index) {
-                return MovieListItem(movie: movieList[index]);
+                return MovieListItem(movie: _movieList[index]);
               }),
         ));
   }
