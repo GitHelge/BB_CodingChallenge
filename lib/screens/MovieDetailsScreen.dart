@@ -79,11 +79,17 @@ class _DetailScreenState extends State<MovieDetailsScreen> {
                                   style: TextStyle(fontSize: 15),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  snapshot.data.plot,
-                                  style: TextStyle(fontSize: 15),
+                              Expanded(
+                                child: ListView(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        snapshot.data.plot,
+                                        style: TextStyle(fontSize: 15),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
