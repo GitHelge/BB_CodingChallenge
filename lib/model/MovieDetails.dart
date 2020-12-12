@@ -26,7 +26,6 @@ class MovieDetails {
   MovieDetails({this.movie, this.plot, this.actors, this.genre, this.runtime});
 
   factory MovieDetails.fromJson(Map<String, dynamic> parsedJson) {
-    print(parsedJson);
     return MovieDetails(
         movie: Movie.fromJson(parsedJson),
         plot: parsedJson['Plot'],

@@ -32,18 +32,15 @@ class DetailScreen extends StatefulWidget {
   final Movie movie;
 
   @override
-  _DetailsScreenState createState() => _DetailsScreenState();
+  _DetailScreenState createState() => _DetailScreenState();
 }
 
-class _DetailsScreenState extends State<DetailScreen> {
-  final _apiClient = ApiClient.initialize();
-  MovieDetails _movieDetails;
+class _DetailScreenState extends State<DetailScreen> {
+  final apiClient = ApiClient.initialize();
+  Future<MovieDetails> _movieDetails;
 
   void _loadMovieDetails(String imdbID) async {
-    final movieDetails = await _apiClient.fetchMovieDetails(imdbID);
-    setState(() {
-      _movieDetails = movieDetails;
-    });
+    _movieDetails = apiClient.fetchMovieDetails(imdbID);
   }
 
   @override
@@ -78,7 +75,7 @@ class _DetailsScreenState extends State<DetailScreen> {
                                 topRight: Radius.circular(8)),
                             image: DecorationImage(
                                 image: imageProvider,
-                                fit: BoxFit.fitWidth,
+                                fit: BoxFit.cover,
                                 alignment: Alignment.topCenter),
                           ),
                         ),
@@ -89,15 +86,56 @@ class _DetailsScreenState extends State<DetailScreen> {
                       ),
                     )),
                 Expanded(
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(8),
-                            bottomRight: Radius.circular(8)),
-                      ),
-                      child: Text(_movieDetails.movie.type)),
-                ),
+                    child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(8),
+                              bottomRight: Radius.circular(8)),
+                        ),
+                        child: FutureBuilder(
+                            future: _movieDetails,
+                            builder: (context,
+                                AsyncSnapshot<MovieDetails> snapshot) {
+                              if (snapshot.hasData) {
+                                return Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Text(
+                                          snapshot.data.movie.title,
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 8.0),
+                                          child: Text(
+                                            snapshot.data.runtime,
+                                            style: TextStyle(fontSize: 15),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 8.0),
+                                          child: Text(
+                                            snapshot.data.plot,
+                                            style: TextStyle(fontSize: 15),
+                                          ),
+                                        ),
+                                      ],
+                                    ));
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Something went wrong!'));
+                              } else {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              }
+                            }))),
               ],
             ),
           ),
