@@ -1,5 +1,5 @@
 import 'package:BB_CodingChallenge/api/ApiClient.dart';
-import 'package:BB_CodingChallenge/model/SearchResult.dart';
+import 'package:BB_CodingChallenge/model/Movie.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -34,16 +34,52 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var _controller = ScrollController(); 
 
   final apiClient = ApiClient.initialize();
-  Future<SearchResult> searchResult;
+  bool isLoading = false;
+  int page = 1; 
+  List<Movie> movieList = [];
+
+  void loadMovies({ bool loadNextPage = false }) async {
+    print("$loadNextPage, $page");
+    setState(() {
+      isLoading = true;
+      if (loadNextPage) page++;
+    });
+    final fetchedMovieList = await apiClient.fetchMovieList(
+      searchString: "batman",
+      page: page
+    );
+    print(fetchedMovieList.map((item) => item.title));
+    setState(() {
+      movieList = [...movieList, ...fetchedMovieList];
+      isLoading = false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    searchResult = apiClient.fetchSearchResult(
-      searchString: "batman"
-    );
+    loadMovies();
+
+    _controller.addListener(() {
+      double maxScroll = _controller.position.maxScrollExtent;
+      double currentScroll = _controller.position.pixels;
+      double delta = 200.0; // or something else..
+      if (maxScroll - currentScroll <= delta) {
+          if (isLoading) return;
+          loadMovies(loadNextPage: true);
+      }
+    });
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -51,37 +87,21 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: FutureBuilder(
-        future: searchResult,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data.search.length, 
-              itemBuilder: (context, index) { 
-                final item = snapshot.data.search[index];
-                return ListTile(
-                  title: Text(item.title),
-                  subtitle: Text(item.year),
-                  leading: CachedNetworkImage(
-                    errorWidget: (context, url, error) => Icon(Icons.error),
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    imageUrl: item.posterUri,
-                  ),
-                );
-              },
-            );
-          } else if (snapshot.hasError) {
-            return Text("${snapshot.error}");
-          }
-          // By default, show a loading spinner.
-          return Center(
-            child: SizedBox(
-              child: CircularProgressIndicator(),
-              height: 24,
-              width: 24,
+      body: ListView.builder(
+        controller: _controller,
+        itemCount: movieList.length, 
+        itemBuilder: (context, index) { 
+          final item = movieList[index];
+          return ListTile(
+            title: Text(item.title),
+            subtitle: Text(item.year),
+            leading: CachedNetworkImage(
+              errorWidget: (context, url, error) => Icon(Icons.error),
+              placeholder: (context, url) => CircularProgressIndicator(),
+              imageUrl: item.posterUri,
             ),
           );
-        }),
+        })
     );
   }
 }
