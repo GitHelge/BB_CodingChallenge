@@ -33,7 +33,10 @@ class _MovieListScreenState extends State<MovieListScreen> {
         inBar: false,
         setState: setState,
         onSubmitted: onSubmitted,
+        showClearButton: true,
+        clearOnSubmit: false,
         buildDefaultAppBar: buildAppBar);
+    _searchString = "Hello World";
   }
 
   void onSubmitted(String value) {
