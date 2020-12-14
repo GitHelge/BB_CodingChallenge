@@ -4,6 +4,7 @@
 # Todos
  - Testing Flutter Widgets + Mocking API calls.
  - Better handling of non-existent poster uris. (Produces Info Logs)
+ - Code documentation / comments (?!)
 
 # Coding Challenge
 
